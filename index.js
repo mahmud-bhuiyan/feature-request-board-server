@@ -26,16 +26,16 @@ app.use("/api/v1/tasks", taskRoutes);
 // health route
 app.get("/health", (req, res) => {
   res.status(200).json({
-    status: "SJI - Task Manager API is running",
+    status: "SJI - Feature request board API is running",
   });
 });
 
 // app.get("/", (req, res) => {
-//   res.send("Task Manager app is running");
+//   res.send("Feature request board app is running");
 // });
 
 app.listen(port, () => {
-  console.log(`Task Manager app listening on port ${port}`);
+  console.log(`Feature request board app listening on port ${port}`);
 });
 
 app.use(notFound);

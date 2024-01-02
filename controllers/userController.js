@@ -20,9 +20,13 @@ const generateAuthToken = (userId) => {
   );
 };
 
-//register
+/**
+ * user register
+ * /api/v1/users/register
+ * public route
+ */
 const registerUser = asyncWrapper(async (req, res) => {
-  // Extracting user information from the request body
+  // Extract user data from the request body
   const { name, email, password, confirmPassword } = req.body;
 
   // Checking if the provided password and confirmPassword match
@@ -56,7 +60,43 @@ const registerUser = asyncWrapper(async (req, res) => {
     .send({ message: "User created successfully", user: userDetails, token });
 });
 
-//login
+/**
+ * google-signin
+ * /api/v1/users/google-signin
+ * public route
+ */
+const googleSignIn = async (req, res) => {
+  // Extract user data from the request body
+  const { name, email, photoURL } = req.body;
+
+  // Duplicate user handling
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.send({ message: "User already exists" });
+  }
+
+  // Creating a new User instance with hashed password
+  const user = new User({ name, email, photoURL });
+
+  // Generating a JWT token for the newly registered user
+  const token = generateAuthToken(user._id);
+
+  // Saving the new user in the database
+  await user.save();
+
+  // user details
+  const userDetails = customUserDetails(user);
+
+  res
+    .status(201)
+    .send({ message: "User created successfully", user: userDetails, token });
+};
+
+/**
+ * user login
+ * /api/v1/users/register
+ * public route
+ */
 const loginUser = asyncWrapper(async (req, res) => {
   // Extract email and password from the request body
   const { email, password } = req.body;
@@ -194,6 +234,7 @@ const updateUserPassword = asyncWrapper(async (req, res) => {
 
 module.exports = {
   registerUser,
+  googleSignIn,
   loginUser,
   viewUserDetails,
   updateUserDetails,

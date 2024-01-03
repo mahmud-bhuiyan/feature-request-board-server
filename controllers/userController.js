@@ -139,7 +139,11 @@ const loginUser = asyncWrapper(async (req, res) => {
     .send({ message: "Logged in successfully", user: userDetails, token });
 });
 
-// viewUserDetails
+/**
+ * viewUserDetails
+ * /api/v1/users/me
+ * private route
+ */
 const viewUserDetails = asyncWrapper(async (req, res) => {
   // Extract user ID from the authenticated user in the request object
   const userId = req.user._id;
@@ -159,7 +163,11 @@ const viewUserDetails = asyncWrapper(async (req, res) => {
   res.status(200).json({ message: "User found", user: userDetails });
 });
 
-// updateUserDetails
+/**
+ * updateUserDetails
+ * /api/v1/users/update
+ * private route
+ */
 const updateUserDetails = asyncWrapper(async (req, res) => {
   // Extract user ID from the request object
   const userId = req.user._id;
@@ -191,11 +199,16 @@ const updateUserDetails = asyncWrapper(async (req, res) => {
     .json({ message: "User updated successfully", user: userDetails });
 });
 
-// updateUserPassword
+/**
+ * updateUserPassword
+ * /api/v1/users/updatePassword
+ * private route
+ */
+//
 const updateUserPassword = asyncWrapper(async (req, res) => {
   // Extract user information from the request
   const userId = req.user._id;
-  const { currentPassword, newPassword, confirmPassword } = req.body;
+  const { newPassword, confirmPassword } = req.body;
 
   // Find the user by ID
   const user = await User.findById(userId);
@@ -205,26 +218,10 @@ const updateUserPassword = asyncWrapper(async (req, res) => {
     throw createCustomError("User not found!", 404);
   }
 
-  // Compare the current password with the stored hashed password
-  const isMatch = await bcrypt.compare(currentPassword, user.password);
-
-  // If passwords don't match, throw an error
-  if (!isMatch) {
-    throw createCustomError("Current password is incorrect", 401);
-  }
-
   // Check if the new password and confirm password match
   if (newPassword !== confirmPassword) {
     throw createCustomError(
       "New password and confirm password do not match",
-      400
-    );
-  }
-
-  // Check if the new password is different from the current password
-  if (currentPassword === newPassword) {
-    throw createCustomError(
-      "New password must be different from the current password",
       400
     );
   }

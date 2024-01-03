@@ -71,8 +71,18 @@ const googleSignIn = async (req, res) => {
 
   // Duplicate user handling
   const existingUser = await User.findOne({ email });
+
   if (existingUser) {
-    return res.send({ message: "User already exists" });
+    // Generate a JWT token for the existing user
+    const token = generateAuthToken(existingUser._id);
+
+    // Return the token and user details
+    const userDetails = customUserDetails(existingUser);
+    return res.status(200).send({
+      message: "Sign In with Google Successful",
+      user: userDetails,
+      token,
+    });
   }
 
   // Creating a new User instance with hashed password

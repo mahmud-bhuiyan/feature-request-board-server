@@ -3,7 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
 const userRoutes = require("./routes/userRoutes");
-const taskRoutes = require("./routes/taskRoutes");
+const featureRoutes = require("./routes/featureRoutes");
 const notFound = require("./middlewares/notFound");
 const customErrorHandler = require("./middlewares/customErrorHandler");
 
@@ -21,7 +21,7 @@ app.use(express.static("./public"));
 
 // routes
 app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/tasks", taskRoutes);
+app.use("/api/v1/features", featureRoutes);
 
 // health route
 app.get("/health", (req, res) => {

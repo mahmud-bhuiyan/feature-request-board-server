@@ -57,7 +57,7 @@ const registerUser = asyncWrapper(async (req, res) => {
 
   res
     .status(201)
-    .send({ message: "User created successfully", user: userDetails, token });
+    .send({ message: "User Created Successfully", user: userDetails, token });
 });
 
 /**

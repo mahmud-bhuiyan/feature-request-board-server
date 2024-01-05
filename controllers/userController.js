@@ -204,7 +204,6 @@ const updateUserDetails = asyncWrapper(async (req, res) => {
  * /api/v1/users/updatePassword
  * private route
  */
-//
 const updateUserPassword = asyncWrapper(async (req, res) => {
   // Extract user information from the request
   const userId = req.user._id;

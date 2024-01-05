@@ -2,7 +2,11 @@ const Feature = require("../models/Feature");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const { createCustomError } = require("../errors/customError");
 
-// add new request
+/**
+ * add new request
+ * /api/v1/features/
+ * private route
+ */
 const createRequest = asyncWrapper(async (req, res) => {
   // Extract feature details from the request body
   const { title, description } = req.body;
@@ -36,6 +40,21 @@ const createRequest = asyncWrapper(async (req, res) => {
   });
 });
 
+/**
+ * all requests
+ * /api/v1/features/
+ * private route
+ */
+const getAllRequest = asyncWrapper(async (req, res) => {
+  const features = await Feature.find().sort({ _id: -1 });
+
+  res.status(200).json({
+    message: "All features retrieved successfully",
+    features,
+  });
+});
+
 module.exports = {
   createRequest,
+  getAllRequest,
 };

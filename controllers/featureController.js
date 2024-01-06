@@ -25,10 +25,7 @@ const createRequest = asyncWrapper(async (req, res) => {
   const feature = new Feature({
     title,
     description,
-    createdBy: {
-      userId: req.user._id,
-      name: req.user.name,
-    },
+    createdBy: req.user._id,
   });
 
   // Save the new feature to the database
@@ -45,14 +42,82 @@ const createRequest = asyncWrapper(async (req, res) => {
  * /api/v1/features/
  * private route
  */
+// const getAllRequest = asyncWrapper(async (req, res) => {
+//   const features = await Feature.find().sort({ _id: -1 });
+
+//   res.status(200).json({
+//     message: "All features retrieved successfully",
+//     features,
+//   });
+// });
+
 const getAllRequest = asyncWrapper(async (req, res) => {
-  const features = await Feature.find().sort({ _id: -1 });
+  let page = parseInt(req.query.page) || 1;
+  const pageSize = parseInt(req.query.pageSize) || 5;
+
+  // If the user requests a page beyond the initial 20, calculate the new page
+  if (page > 4) {
+    page = Math.ceil((pageSize * (page - 4)) / 20) + 1;
+  }
+
+  const skip = (page - 1) * pageSize;
+
+  const features = await Feature.find({ isDeleted: false })
+    .sort({ _id: -1 })
+    .populate({
+      path: "createdBy",
+      select: "name email photoURL",
+    })
+    .populate("likes.users")
+    .populate("comments.data.commentsBy");
+
+  // Map the features array to include only the desired fields
+  const simplifiedFeatures = features.map((feature) => ({
+    _id: feature._id,
+    title: feature.title,
+    description: feature.description,
+    createdBy: feature.createdBy,
+    createdAt: feature.createdAt,
+    isDeleted: feature.isDeleted,
+    likes: feature.likes,
+    status: feature.status,
+    comments: feature.comments,
+  }));
 
   res.status(200).json({
     message: "All features retrieved successfully",
-    features,
+    features: simplifiedFeatures,
   });
 });
+
+// const getAllRequest = asyncWrapper(async (req, res) => {
+//   const features = await Feature.find({ isDeleted: false })
+//     .sort({ _id: -1 })
+//     .populate({
+//       path: "createdBy",
+//       select: "name email photoURL",
+//     })
+//     .populate("likes.users")
+//     .populate("comments.data.commentsBy");
+
+//   // Map the features array to include only the desired fields
+//   const simplifiedFeatures = features.map((feature) => ({
+//     _id: feature._id,
+//     title: feature.title,
+//     description: feature.description,
+//     createdBy: feature.createdBy,
+//     createdAt: feature.createdAt,
+//     isDeleted: feature.isDeleted,
+//     likes: feature.likes,
+//     status: feature.status,
+//     comments: feature.comments,
+//   }));
+
+//   res.status(200).json({
+//     message: "All features retrieved successfully",
+//     features: simplifiedFeatures,
+//   });
+// });
 
 module.exports = {
   createRequest,

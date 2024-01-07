@@ -89,9 +89,7 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
   // Get the request ID from req.params
   const featureId = req.params.id;
 
-  const feature = await Feature.findById(featureId)
-    .populate("createdBy")
-    .populate("comments.data.commentsBy");
+  const feature = await Feature.findById(featureId).populate("createdBy");
 
   if (!feature) {
     throw createCustomError("Feature not found", 404);
@@ -106,6 +104,7 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
     createdBy: {
       id: feature.createdBy._id,
       name: feature.createdBy.name,
+      email: feature.createdBy.email,
       photoURL: feature.createdBy.photoURL,
     },
     likes: {
@@ -125,8 +124,45 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
   });
 });
 
+/**
+ * update a requests by id
+ * /api/v1/features/:id
+ * private route
+ */
+const updateFeatureRequestLikesById = asyncWrapper(async (req, res) => {
+  const featureId = req.params.id;
+  const userId = req.user.id;
+
+  // Check if the feature request exists
+  const feature = await Feature.findById(featureId);
+
+  if (!feature) {
+    throw createCustomError("Feature not found", 404);
+  }
+
+  // Check if the user has already liked this feature
+  const isLiked = feature.likes.users.includes(userId);
+
+  if (isLiked) {
+    // User already liked the feature, so unlike it
+    feature.likes.users.pull(userId);
+    feature.likes.count -= 1;
+  } else {
+    // User hasn't liked the feature, so like it
+    feature.likes.users.push(userId);
+    feature.likes.count += 1;
+  }
+
+  // Save the updated feature to the database
+  await feature.save();
+
+  // Respond with the updated feature
+  res.json({ feature });
+});
+
 module.exports = {
   createRequest,
   getAllRequest,
   getFeatureRequestById,
+  updateFeatureRequestLikesById,
 };

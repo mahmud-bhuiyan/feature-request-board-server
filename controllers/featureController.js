@@ -89,7 +89,10 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
   // Get the request ID from req.params
   const featureId = req.params.id;
 
-  const feature = await Feature.findById(featureId).populate("createdBy");
+  const feature = await Feature.findById(featureId)
+    .populate("createdBy")
+    .populate("likes.users")
+    .populate("comments.data.commentsBy");
 
   if (!feature) {
     throw createCustomError("Feature not found", 404);
@@ -160,9 +163,45 @@ const updateFeatureRequestLikesById = asyncWrapper(async (req, res) => {
   res.json({ feature });
 });
 
+/**
+ * add comment to requests by id
+ * /api/v1/features/:id
+ * private route
+ */
+const addFeatureRequestCommentsById = asyncWrapper(async (req, res) => {
+  const featureId = req.params.id;
+  const userId = req.user.id;
+  const { comment } = req.body;
+
+  // Check if the feature request exists
+  const feature = await Feature.findById(featureId);
+
+  if (!feature) {
+    throw createCustomError("Feature not found", 404);
+  }
+
+  // Add the new comment
+  feature.comments.data.push({
+    commentsBy: userId,
+    comment,
+    createdAt: new Date(),
+  });
+
+  // Update comments count
+  feature.comments.count += 1;
+
+  // Save the updated feature to the database
+  await feature.save();
+
+  // Respond with the updated feature
+  res.json({ message: "Comment added successfully", feature });
+
+});
+
 module.exports = {
   createRequest,
   getAllRequest,
   getFeatureRequestById,
   updateFeatureRequestLikesById,
+  addFeatureRequestCommentsById,
 };

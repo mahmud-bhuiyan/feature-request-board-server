@@ -39,11 +39,11 @@ const featureSchema = new mongoose.Schema(
       },
       data: [
         {
+          comment: String,
           commentsBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
           },
-          comment: String,
           createdAt: {
             type: Date,
             default: Date.now,

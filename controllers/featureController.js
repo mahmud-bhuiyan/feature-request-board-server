@@ -42,15 +42,6 @@ const createRequest = asyncWrapper(async (req, res) => {
  * /api/v1/features/
  * private route
  */
-// const getAllRequest = asyncWrapper(async (req, res) => {
-//   const features = await Feature.find().sort({ _id: -1 });
-
-//   res.status(200).json({
-//     message: "All features retrieved successfully",
-//     features,
-//   });
-// });
-
 const getAllRequest = asyncWrapper(async (req, res) => {
   const features = await Feature.find({ isDeleted: false })
     .sort({ _id: -1 })
@@ -58,8 +49,10 @@ const getAllRequest = asyncWrapper(async (req, res) => {
       path: "createdBy",
       select: "name email photoURL",
     })
-    .populate("likes.users")
-    .populate("comments.data.commentsBy");
+    .populate({
+      path: "likes.users",
+      select: "email",
+    });
 
   // Map the features array to include only the desired fields
   const simplifiedFeatures = features.map((feature) => ({
@@ -68,10 +61,9 @@ const getAllRequest = asyncWrapper(async (req, res) => {
     description: feature.description,
     createdBy: feature.createdBy,
     createdAt: feature.createdAt,
-    isDeleted: feature.isDeleted,
     likes: feature.likes,
     status: feature.status,
-    comments: feature.comments,
+    totalComments: feature.comments.count,
   }));
 
   res.status(200).json({
@@ -81,7 +73,7 @@ const getAllRequest = asyncWrapper(async (req, res) => {
 });
 
 /**
- * get a requests by id
+ * get single feature request
  * /api/v1/features/:id
  * private route
  */
@@ -90,9 +82,18 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
   const featureId = req.params.id;
 
   const feature = await Feature.findById(featureId)
-    .populate("createdBy")
-    .populate("likes.users")
-    .populate("comments.data.commentsBy");
+    .populate({
+      path: "createdBy",
+      select: "name email photoURL",
+    })
+    .populate({
+      path: "likes.users",
+      select: "email",
+    })
+    .populate({
+      path: "comments.data.commentsBy",
+      select: "name email photoURL createdAt",
+    });
 
   if (!feature) {
     throw createCustomError("Feature not found", 404);
@@ -100,24 +101,13 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
 
   // Format the feature details for the response
   const formattedFeature = {
-    id: feature._id,
+    _id: feature._id,
     title: feature.title,
     description: feature.description,
     status: feature.status,
-    createdBy: {
-      id: feature.createdBy._id,
-      name: feature.createdBy.name,
-      email: feature.createdBy.email,
-      photoURL: feature.createdBy.photoURL,
-    },
-    likes: {
-      count: feature.likes.count,
-      users: feature.likes.users,
-    },
-    comments: {
-      count: feature.comments.count,
-      data: feature.comments.data,
-    },
+    createdBy: feature.createdBy,
+    likes: feature.likes,
+    comments: feature.comments,
     createdAt: feature.createdAt,
   };
 
@@ -128,7 +118,7 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
 });
 
 /**
- * update a requests by id
+ * update feature requests like by id
  * /api/v1/features/:id
  * private route
  */
@@ -159,12 +149,12 @@ const updateFeatureRequestLikesById = asyncWrapper(async (req, res) => {
   // Save the updated feature to the database
   await feature.save();
 
-  // Respond with the updated feature
-  res.json({ feature });
+  // Respond with the update message only
+  res.json({ message: "Feature like/unlike successful" });
 });
 
 /**
- * add comment to requests by id
+ * add comment to feature requests
  * /api/v1/features/:id
  * private route
  */
@@ -174,7 +164,11 @@ const addFeatureRequestCommentsById = asyncWrapper(async (req, res) => {
   const { comment } = req.body;
 
   // Check if the feature request exists
-  const feature = await Feature.findById(featureId);
+  // const feature = await Feature.findById(featureId);
+  const feature = await Feature.findById(featureId).populate({
+    path: "comments.data.commentsBy",
+    select: "_id name email photoURL createdAt",
+  });
 
   if (!feature) {
     throw createCustomError("Feature not found", 404);
@@ -183,7 +177,7 @@ const addFeatureRequestCommentsById = asyncWrapper(async (req, res) => {
   // Add the new comment
   feature.comments.data.push({
     commentsBy: userId,
-    comment,
+    comment: comment,
     createdAt: new Date(),
   });
 
@@ -194,8 +188,7 @@ const addFeatureRequestCommentsById = asyncWrapper(async (req, res) => {
   await feature.save();
 
   // Respond with the updated feature
-  res.json({ message: "Comment added successfully", feature });
-
+  res.json({ message: "Comment added successfully" });
 });
 
 module.exports = {

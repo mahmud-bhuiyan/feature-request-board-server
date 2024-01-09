@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
+const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const featureRoutes = require("./routes/featureRoutes");
 const notFound = require("./middlewares/notFound");
@@ -20,6 +21,7 @@ app.use(bodyParser.json());
 app.use(express.static("./public"));
 
 // routes
+app.use("/api/v1/admins", adminRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/features", featureRoutes);
 

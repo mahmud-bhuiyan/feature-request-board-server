@@ -6,8 +6,8 @@ const { createCustomError } = require("../errors/customError");
 
 // custom user details
 const customUserDetails = (user) => {
-  const { _id, name, email } = user;
-  return { _id, name, email };
+  const { _id, name, email, photoURL, role } = user;
+  return { _id, name, email, photoURL, role };
 };
 
 // JWT token generator

@@ -5,7 +5,7 @@ const { createCustomError } = require("../errors/customError");
 /**
  * add new request
  * /api/v1/features/
- * private route
+ * private route (post)
  */
 const createRequest = asyncWrapper(async (req, res) => {
   // Extract feature details from the request body
@@ -40,7 +40,7 @@ const createRequest = asyncWrapper(async (req, res) => {
 /**
  * all requests
  * /api/v1/features/
- * private route
+ * private route (get)
  */
 const getAllRequest = asyncWrapper(async (req, res) => {
   const features = await Feature.find({ isDeleted: false })
@@ -75,7 +75,7 @@ const getAllRequest = asyncWrapper(async (req, res) => {
 /**
  * get single feature request
  * /api/v1/features/:id
- * private route
+ * private route (get)
  */
 const getFeatureRequestById = asyncWrapper(async (req, res) => {
   // Get the request ID from req.params
@@ -120,7 +120,7 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
 /**
  * update feature requests like by id
  * /api/v1/features/:id
- * private route
+ * private route (patch)
  */
 const updateFeatureRequestLikesById = asyncWrapper(async (req, res) => {
   const featureId = req.params.id;
@@ -155,8 +155,8 @@ const updateFeatureRequestLikesById = asyncWrapper(async (req, res) => {
 
 /**
  * add comment to feature requests
- * /api/v1/features/:id
- * private route
+ * /api/v1/features/:id/comments
+ * private route (patch)
  */
 const addFeatureRequestCommentsById = asyncWrapper(async (req, res) => {
   const featureId = req.params.id;
@@ -164,7 +164,6 @@ const addFeatureRequestCommentsById = asyncWrapper(async (req, res) => {
   const { comment } = req.body;
 
   // Check if the feature request exists
-  // const feature = await Feature.findById(featureId);
   const feature = await Feature.findById(featureId).populate({
     path: "comments.data.commentsBy",
     select: "_id name email photoURL createdAt",
@@ -191,10 +190,61 @@ const addFeatureRequestCommentsById = asyncWrapper(async (req, res) => {
   res.json({ message: "Comment added successfully" });
 });
 
+/**
+ * delete feature request comment
+ * /api/v1/features/:id/comments
+ * private route (delete)
+ */
+const deleteCommentsById = asyncWrapper(async (req, res) => {
+  const featureId = req.params.featureId;
+  const commentId = req.params.commentId;
+  const userId = req.user.id;
+
+  // Find the feature by ID
+  const feature = await Feature.findById(featureId).populate({
+    path: "comments.data.commentsBy",
+    select: "_id name",
+  });
+
+  if (!feature) {
+    return res.status(404).json({ error: "Feature not found" });
+  }
+
+  // Find the comment in the feature's comments array
+  const comment = feature.comments.data.find(
+    (comment) => comment._id.toString() === commentId
+  );
+
+  if (!comment) {
+    return res.status(404).json({ error: "Comment not found" });
+  }
+
+  // Check if the user making the request is the one who posted the comment
+  if (comment.commentsBy._id.toString() !== userId) {
+    return res
+      .status(403)
+      .json({ error: "Unauthorized. You cannot delete this comment." });
+  }
+
+  // Remove the comment from the comments array
+  feature.comments.data = feature.comments.data.filter(
+    (comment) => comment._id.toString() !== commentId
+  );
+
+  // Decrement the comments count
+  feature.comments.count--;
+
+  // Save the updated feature document
+  await feature.save();
+
+  return res.status(200).json({ message: "Comment deleted successfully" });
+});
+
 module.exports = {
   createRequest,
   getAllRequest,
   getFeatureRequestById,
   updateFeatureRequestLikesById,
   addFeatureRequestCommentsById,
+  deleteCommentsById,
 };

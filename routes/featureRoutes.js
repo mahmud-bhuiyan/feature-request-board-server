@@ -8,6 +8,7 @@ const {
   getFeatureRequestById,
   updateFeatureRequestLikesById,
   addFeatureRequestCommentsById,
+  deleteCommentsById,
 } = require("../controllers/featureController");
 
 router.route("/").post(auth, createRequest).get(auth, getAllRequest);
@@ -18,5 +19,9 @@ router
   .patch(auth, updateFeatureRequestLikesById);
 
 router.route("/:id/comments").patch(auth, addFeatureRequestCommentsById);
+
+router
+  .route("/:featureId/comments/:commentId")
+  .delete(auth, deleteCommentsById);
 
 module.exports = router;

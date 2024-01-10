@@ -33,6 +33,35 @@ const getAllUsers = asyncWrapper(async (req, res) => {
   });
 });
 
+/**
+ * delete user
+ * /api/v1/admins/
+ * private route (get)
+ */
+const softDeleteUserById = asyncWrapper(async (req, res) => {
+  const user = req.user;
+
+  // Get the delete users ID from req.params
+  const userId = req.params.id;
+
+  // Check if the user has the "admin" role
+  if (user.role !== "admin") {
+    throw createCustomError("You are not authorized!", 403);
+  }
+
+  // Fetch user from the database
+  const deletedUser = await User.findById(userId);
+
+  // Soft delete the user
+  deletedUser.isDeleted = true;
+  await deletedUser.save();
+
+  res.status(200).json({
+    message: "Users deleted successfully",
+  });
+});
+
 module.exports = {
   getAllUsers,
+  softDeleteUserById,
 };

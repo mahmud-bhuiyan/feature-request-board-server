@@ -1,9 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { getAllUsers } = require("../controllers/adminController");
+const {
+  getAllUsers,
+  softDeleteUserById,
+} = require("../controllers/adminController");
 const auth = require("../middlewares/auth");
 
-// View user details
+// View all users
 router.get("/", auth, getAllUsers);
+
+// soft delete a user
+router.route("/:id").patch(auth, softDeleteUserById);
 
 module.exports = router;

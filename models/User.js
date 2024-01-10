@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -8,6 +7,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String },
     photoURL: { type: String },
     role: { type: String, default: "user" },
+    isDeleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,

@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getAllUsers,
   softDeleteUserById,
+  makeAdmin,
 } = require("../controllers/adminController");
 const auth = require("../middlewares/auth");
 const checkAdmin = require("../middlewares/checkAdmin");
@@ -11,6 +12,9 @@ const checkAdmin = require("../middlewares/checkAdmin");
 router.get("/", auth, checkAdmin, getAllUsers);
 
 // soft delete a user
-router.route("/:id").patch(auth, checkAdmin, softDeleteUserById);
+router.patch("/:id", auth, checkAdmin, softDeleteUserById);
+
+// Make a user an admin
+router.patch("/make-admin/:id", auth, checkAdmin, makeAdmin);
 
 module.exports = router;

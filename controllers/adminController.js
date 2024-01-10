@@ -8,15 +8,8 @@ const { createCustomError } = require("../errors/customError");
  * private route (get)
  */
 const getAllUsers = asyncWrapper(async (req, res) => {
-  const user = req.user;
-
-  // Check if the user has the "admin" role
-  if (user.role !== "admin") {
-    throw createCustomError("You are not an admin!", 403);
-  }
-
   // Fetch all users from the database
-  const users = await User.find().sort({ _id: -1 });
+  const users = await User.find({ isDeleted: false }).sort({ _id: -1 });
 
   // Map the features array to include only the desired fields
   const userDetails = users.map((user) => ({
@@ -25,6 +18,7 @@ const getAllUsers = asyncWrapper(async (req, res) => {
     email: user.email,
     photoURL: user.photoURL,
     role: user.role,
+    isDeleted: user.isDeleted,
   }));
 
   res.status(200).json({
@@ -39,15 +33,8 @@ const getAllUsers = asyncWrapper(async (req, res) => {
  * private route (get)
  */
 const softDeleteUserById = asyncWrapper(async (req, res) => {
-  const user = req.user;
-
   // Get the delete users ID from req.params
   const userId = req.params.id;
-
-  // Check if the user has the "admin" role
-  if (user.role !== "admin") {
-    throw createCustomError("You are not authorized!", 403);
-  }
 
   // Fetch user from the database
   const deletedUser = await User.findById(userId);

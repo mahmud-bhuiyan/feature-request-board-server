@@ -5,11 +5,12 @@ const {
   softDeleteUserById,
 } = require("../controllers/adminController");
 const auth = require("../middlewares/auth");
+const checkAdmin = require("../middlewares/checkAdmin");
 
 // View all users
-router.get("/", auth, getAllUsers);
+router.get("/", auth, checkAdmin, getAllUsers);
 
 // soft delete a user
-router.route("/:id").patch(auth, softDeleteUserById);
+router.route("/:id").patch(auth, checkAdmin, softDeleteUserById);
 
 module.exports = router;

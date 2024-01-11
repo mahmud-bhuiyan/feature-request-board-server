@@ -11,11 +11,11 @@ const {
   deleteCommentsById,
 } = require("../controllers/featureController");
 
-router.route("/").post(auth, createRequest).get(auth, getAllRequest);
+router.route("/").post(auth, createRequest).get(getAllRequest);
 
 router
   .route("/:id")
-  .get(auth, getFeatureRequestById)
+  .get(getFeatureRequestById)
   .patch(auth, updateFeatureRequestLikesById);
 
 router.route("/:id/comments").patch(auth, addFeatureRequestCommentsById);

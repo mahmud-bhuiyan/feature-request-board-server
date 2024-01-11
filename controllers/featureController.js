@@ -2,6 +2,21 @@ const Feature = require("../models/Feature");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const { createCustomError } = require("../errors/customError");
 
+const formatFeature = (feature) => {
+  const formattedFeature = {
+    _id: feature._id,
+    title: feature.title,
+    description: feature.description,
+    status: feature.status,
+    createdBy: feature.createdBy,
+    likes: feature.likes,
+    comments: feature.comments,
+    createdAt: feature.createdAt,
+  };
+
+  return formattedFeature;
+};
+
 /**
  * add new request
  * /api/v1/features/
@@ -31,9 +46,12 @@ const createRequest = asyncWrapper(async (req, res) => {
   // Save the new feature to the database
   await feature.save();
 
+  // Format the feature details for the response
+  const formattedFeature = formatFeature(feature);
+
   res.status(201).json({
-    message: "Feature created successfully",
-    feature,
+    message: "Feature Request Successful",
+    feature: formattedFeature,
   });
 });
 
@@ -99,17 +117,11 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
     throw createCustomError("Feature not found", 404);
   }
 
+  // Sort comments based on the createdAt field (newest first)
+  // feature.comments.data.sort((a, b) => b.createdAt - a.createdAt);
+
   // Format the feature details for the response
-  const formattedFeature = {
-    _id: feature._id,
-    title: feature.title,
-    description: feature.description,
-    status: feature.status,
-    createdBy: feature.createdBy,
-    likes: feature.likes,
-    comments: feature.comments,
-    createdAt: feature.createdAt,
-  };
+  const formattedFeature = formatFeature(feature);
 
   res.status(200).json({
     message: "Feature fetched successfully",
@@ -149,8 +161,14 @@ const updateFeatureRequestLikesById = asyncWrapper(async (req, res) => {
   // Save the updated feature to the database
   await feature.save();
 
+  // Format the feature details for the response
+  const formattedFeature = formatFeature(feature);
+
   // Respond with the update message only
-  res.json({ message: "Feature like/unlike successful" });
+  res.json({
+    message: "Feature like/unlike successful",
+    feature: formattedFeature,
+  });
 });
 
 /**
@@ -186,8 +204,14 @@ const addFeatureRequestCommentsById = asyncWrapper(async (req, res) => {
   // Save the updated feature to the database
   await feature.save();
 
+  // Format the feature details for the response
+  const formattedFeature = formatFeature(feature);
+
   // Respond with the updated feature
-  res.json({ message: "Comment added successfully" });
+  res.json({
+    message: "Comment successful",
+    feature: formattedFeature,
+  });
 });
 
 /**
@@ -237,7 +261,13 @@ const deleteCommentsById = asyncWrapper(async (req, res) => {
   // Save the updated feature document
   await feature.save();
 
-  return res.status(200).json({ message: "Comment deleted successfully" });
+  // Format the feature details for the response
+  const formattedFeature = formatFeature(feature);
+
+  return res.status(200).json({
+    message: "Comment deleted successfully",
+    feature: formattedFeature,
+  });
 });
 
 module.exports = {

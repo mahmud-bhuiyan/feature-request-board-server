@@ -65,15 +65,21 @@ const getAllRequest = asyncWrapper(async (req, res) => {
     .sort({ _id: -1 })
     .populate({
       path: "createdBy",
-      select: "name email photoURL",
+      match: { isDeleted: false },
+      select: "name email photoURL isDeleted",
     })
     .populate({
       path: "likes.users",
       select: "email",
     });
 
+  // Filter out features created by soft deleted users
+  const filteredFeatures = features.filter(
+    (feature) => feature.createdBy !== null
+  );
+
   // Map the features array to include only the desired fields
-  const simplifiedFeatures = features.map((feature) => ({
+  const simplifiedFeatures = filteredFeatures.map((feature) => ({
     _id: feature._id,
     title: feature.title,
     description: feature.description,

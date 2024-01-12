@@ -140,7 +140,7 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
  * /api/v1/features/:id
  * private route (patch)
  */
-const updateFeatureRequestLikesById = asyncWrapper(async (req, res) => {
+const updateRequestsLikesById = asyncWrapper(async (req, res) => {
   const featureId = req.params.id;
   const userId = req.user.id;
 
@@ -173,6 +173,36 @@ const updateFeatureRequestLikesById = asyncWrapper(async (req, res) => {
   // Respond with the update message only
   res.json({
     message: "Feature like/unlike successful",
+    feature: formattedFeature,
+  });
+});
+
+/**
+ * update feature requests status
+ * /api/v1/features/:id
+ * private route (patch)
+ */
+const updateRequestsStatusById = asyncWrapper(async (req, res) => {
+  const featureId = req.params.id;
+  const status = req.body.status;
+
+  // Check if the feature request exists
+  const feature = await Feature.findById(featureId);
+
+  if (!feature) {
+    throw createCustomError("Feature not found", 404);
+  }
+
+  // // Save the updated feature to the database
+  feature.status = status;
+  await feature.save();
+
+  // Format the feature details for the response
+  const formattedFeature = formatFeature(feature);
+
+  // Respond with the update message only
+  res.json({
+    message: "Feature status updated successfully",
     feature: formattedFeature,
   });
 });
@@ -280,7 +310,8 @@ module.exports = {
   createRequest,
   getAllRequest,
   getFeatureRequestById,
-  updateFeatureRequestLikesById,
+  updateRequestsLikesById,
+  updateRequestsStatusById,
   addFeatureRequestCommentsById,
   deleteCommentsById,
 };

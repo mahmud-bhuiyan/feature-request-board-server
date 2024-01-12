@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String },
-    photoURL: { type: String, default: "https://i.ibb.co/0qwVw3b/p-2.jpg" },
+    photoURL: { type: String },
     role: { type: String, default: "user" },
     isDeleted: { type: Boolean, default: false },
   },
@@ -14,5 +14,4 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-const User = mongoose.model("User", userSchema);
-module.exports = User;
+module.exports = mongoose.model("User", userSchema);

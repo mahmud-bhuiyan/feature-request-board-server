@@ -136,11 +136,49 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
 });
 
 /**
- * update feature requests like by id
- * /api/v1/features/:id
+ * Like a feature request by ID
+ * /api/v1/features/:id/like
  * private route (patch)
  */
-const updateRequestsLikesById = asyncWrapper(async (req, res) => {
+const likeFeatureRequestById = asyncWrapper(async (req, res) => {
+  const featureId = req.params.id;
+  const userId = req.user.id;
+
+  // Check if the feature request exists
+  const feature = await Feature.findById(featureId);
+
+  if (!feature) {
+    throw createCustomError("Feature not found", 404);
+  }
+
+  // Check if the user has already liked this feature
+  const isLiked = feature.likes.users.includes(userId);
+
+  if (!isLiked) {
+    // User hasn't liked the feature, so like it
+    feature.likes.users.push(userId);
+    feature.likes.count += 1;
+
+    // Save the updated feature to the database
+    await feature.save();
+  }
+
+  // Format the feature details for the response
+  const formattedFeature = formatFeature(feature);
+
+  // Respond with the update message only
+  res.json({
+    message: "Feature liked successfully",
+    feature: formattedFeature,
+  });
+});
+
+/**
+ * Unlike a feature request by ID
+ * /api/v1/features/:id/unlike
+ * private route (patch)
+ */
+const unlikeFeatureRequestById = asyncWrapper(async (req, res) => {
   const featureId = req.params.id;
   const userId = req.user.id;
 
@@ -158,24 +196,25 @@ const updateRequestsLikesById = asyncWrapper(async (req, res) => {
     // User already liked the feature, so unlike it
     feature.likes.users.pull(userId);
     feature.likes.count -= 1;
-  } else {
-    // User hasn't liked the feature, so like it
-    feature.likes.users.push(userId);
-    feature.likes.count += 1;
-  }
 
-  // Save the updated feature to the database
-  await feature.save();
+    // Save the updated feature to the database
+    await feature.save();
+  }
 
   // Format the feature details for the response
   const formattedFeature = formatFeature(feature);
 
   // Respond with the update message only
   res.json({
-    message: "Feature like/unlike successful",
+    message: "Feature unliked successfully",
     feature: formattedFeature,
   });
 });
+
+module.exports = {
+  likeFeatureRequestById,
+  unlikeFeatureRequestById,
+};
 
 /**
  * update feature requests status
@@ -255,7 +294,7 @@ const addFeatureRequestCommentsById = asyncWrapper(async (req, res) => {
  * /api/v1/features/:id/comments
  * private route (delete)
  */
-const deleteCommentsById = asyncWrapper(async (req, res) => {
+const deleteCommentById = asyncWrapper(async (req, res) => {
   const featureId = req.params.featureId;
   const commentId = req.params.commentId;
   const userId = req.user.id;
@@ -355,9 +394,10 @@ module.exports = {
   createRequest,
   getAllRequest,
   getFeatureRequestById,
-  updateRequestsLikesById,
+  likeFeatureRequestById,
+  unlikeFeatureRequestById,
   updateRequestsStatusById,
   addFeatureRequestCommentsById,
-  deleteCommentsById,
+  deleteCommentById,
   searchFeatures,
 };

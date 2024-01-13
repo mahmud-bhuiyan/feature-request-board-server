@@ -6,9 +6,10 @@ const {
   createRequest,
   getAllRequest,
   getFeatureRequestById,
-  updateRequestsLikesById,
+  likeFeatureRequestById,
+  unlikeFeatureRequestById,
   addFeatureRequestCommentsById,
-  deleteCommentsById,
+  deleteCommentById,
   updateRequestsStatusById,
   searchFeatures,
 } = require("../controllers/featureController");
@@ -22,16 +23,17 @@ router.route("/:id").get(getFeatureRequestById);
 // Update feature request status
 router.route("/:id/status").patch(auth, updateRequestsStatusById);
 
-// Update feature request likes
-router.route("/:id/likes").patch(auth, updateRequestsLikesById);
+// Like a feature request
+router.patch("/:id/like", auth, likeFeatureRequestById);
+
+// Unlike a feature request
+router.patch("/:id/unlike", auth, unlikeFeatureRequestById);
 
 // Add comments to a feature request
 router.route("/:id/comments").patch(auth, addFeatureRequestCommentsById);
 
 // Delete a comment by ID
-router
-  .route("/:featureId/comments/:commentId")
-  .delete(auth, deleteCommentsById);
+router.route("/:featureId/comments/:commentId").delete(auth, deleteCommentById);
 
 // Search feature requests
 router.route("/search/:searchTerm").get(searchFeatures);

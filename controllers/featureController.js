@@ -306,6 +306,30 @@ const deleteCommentsById = asyncWrapper(async (req, res) => {
   });
 });
 
+/**
+ * search request comment
+ * /api/v1/features/search/
+ * public route (get)
+ */
+const searchFeatures = asyncWrapper(async (req, res) => {
+  const searchTerm = req.params.searchTerm;
+
+  // Replace with your actual database query logic
+  const results = await Feature.find({
+    $or: [
+      { title: { $regex: new RegExp(searchTerm, "i") } },
+      { description: { $regex: new RegExp(searchTerm, "i") } },
+    ],
+  });
+
+  // Format the features for the response
+  const formattedFeatures = results.map(formatFeature);
+
+  return res.status(200).json({
+    features: formattedFeatures,
+  });
+});
+
 module.exports = {
   createRequest,
   getAllRequest,
@@ -314,4 +338,5 @@ module.exports = {
   updateRequestsStatusById,
   addFeatureRequestCommentsById,
   deleteCommentsById,
+  searchFeatures,
 };

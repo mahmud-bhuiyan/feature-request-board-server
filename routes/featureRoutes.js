@@ -10,6 +10,7 @@ const {
   addFeatureRequestCommentsById,
   deleteCommentsById,
   updateRequestsStatusById,
+  searchFeatures,
 } = require("../controllers/featureController");
 
 // Create and get feature requests
@@ -24,10 +25,15 @@ router.route("/:id/status").patch(auth, updateRequestsStatusById);
 // Update feature request likes
 router.route("/:id/likes").patch(auth, updateRequestsLikesById);
 
+// Add comments to a feature request
 router.route("/:id/comments").patch(auth, addFeatureRequestCommentsById);
 
+// Delete a comment by ID
 router
   .route("/:featureId/comments/:commentId")
   .delete(auth, deleteCommentsById);
+
+// Search feature requests
+router.route("/search/:searchTerm").get(searchFeatures);
 
 module.exports = router;

@@ -315,15 +315,36 @@ const searchFeatures = asyncWrapper(async (req, res) => {
   const searchTerm = req.params.searchTerm;
 
   // Replace with your actual database query logic
-  const results = await Feature.find({
-    $or: [
-      { title: { $regex: new RegExp(searchTerm, "i") } },
-      { description: { $regex: new RegExp(searchTerm, "i") } },
+  // const results = await Feature.find({
+  //   $or: [
+  //     { title: { $regex: new RegExp(searchTerm, "i") } },
+  //     { description: { $regex: new RegExp(searchTerm, "i") } },
+  //   ],
+  // });
+
+  const features = await Feature.find({
+    $and: [
+      { isDeleted: false },
+      {
+        $or: [
+          { title: { $regex: new RegExp(searchTerm, "i") } },
+          { description: { $regex: new RegExp(searchTerm, "i") } },
+        ],
+      },
     ],
-  });
+  })
+    .sort({ _id: -1 })
+    .populate({
+      path: "createdBy",
+      select: "name email photoURL isDeleted",
+    })
+    .populate({
+      path: "likes.users",
+      select: "email",
+    });
 
   // Format the features for the response
-  const formattedFeatures = results.map(formatFeature);
+  const formattedFeatures = features.map(formatFeature);
 
   return res.status(200).json({
     features: formattedFeatures,

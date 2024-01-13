@@ -20,9 +20,9 @@ const websiteConfigSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  status: {
+  boardStatus: {
     type: String,
-    enum: ["Active", "Inactive", "Archived"],
+    enum: ["Active", "Inactive"],
     default: "Active",
   },
   sortingOrder: {

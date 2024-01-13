@@ -4,10 +4,10 @@ const { createCustomError } = require("../errors/customError");
 
 // custom website details
 const customWebsiteDetails = (websiteDetails) => {
-  const { name, title, description, logoUrl, status, sortingOrder } =
+  const { name, title, description, logoUrl, boardStatus, sortingOrder } =
     websiteDetails;
 
-  return { name, title, description, logoUrl, status, sortingOrder };
+  return { name, title, description, logoUrl, boardStatus, sortingOrder };
 };
 
 /**

@@ -10,7 +10,7 @@ const {
 
 router
   .route("/")
-  .get(auth, checkAdmin, getWebsiteInfo)
+  .get(getWebsiteInfo)
   .patch(auth, checkAdmin, updateWebsiteInfo);
 
 module.exports = router;

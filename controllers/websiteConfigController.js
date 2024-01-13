@@ -2,6 +2,14 @@ const WebsiteConfig = require("../models/WebsiteConfig");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const { createCustomError } = require("../errors/customError");
 
+// custom website details
+const customWebsiteDetails = (websiteDetails) => {
+  const { name, title, description, logoUrl, status, sortingOrder } =
+    websiteDetails;
+
+  return { name, title, description, logoUrl, status, sortingOrder };
+};
+
 /**
  * get Website Info
  * /api/v1/website/
@@ -15,9 +23,11 @@ const getWebsiteInfo = asyncWrapper(async (req, res) => {
     throw createCustomError("Website details not found", 404);
   }
 
+  const websiteInfo = customWebsiteDetails(websiteDetails);
+
   res.status(200).json({
     message: "Website info fetched successfully",
-    websiteInfo: websiteDetails,
+    websiteInfo,
   });
 });
 
@@ -45,9 +55,11 @@ const updateWebsiteInfo = asyncWrapper(async (req, res) => {
   // Save the updated/created website details
   await websiteDetails.save();
 
+  const websiteInfo = customWebsiteDetails(websiteDetails);
+
   res.status(200).json({
     message: "Website info updated successfully",
-    websiteInfo: websiteDetails,
+    websiteInfo,
   });
 });
 

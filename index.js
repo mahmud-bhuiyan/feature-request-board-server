@@ -34,9 +34,9 @@ app.get("/health", (req, res) => {
   });
 });
 
-// app.get("/", (req, res) => {
-//   res.send("Feature request board app is running");
-// });
+app.get("/", (req, res) => {
+  res.send("Feature request board app is running");
+});
 
 app.listen(port, () => {
   console.log(`Feature request board app listening on port ${port}`);

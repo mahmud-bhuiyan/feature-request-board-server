@@ -1,6 +1,8 @@
 const WebsiteConfig = require("../models/WebsiteConfig");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const { createCustomError } = require("../errors/customError");
+const fs = require("fs").promises;
+const path = require("path");
 
 // custom website details
 const customWebsiteDetails = (websiteDetails) => {
@@ -69,26 +71,6 @@ const updateWebsiteInfo = asyncWrapper(async (req, res) => {
  * /api/v1/website/upload
  * private route (patch)
  */
-// const imageUpload = asyncWrapper(async (req, res) => {
-//   const image = req.file.filename;
-
-//   // Find the existing website details in the database
-//   let websiteDetails = await WebsiteConfig.findOne();
-//   console.log(websiteDetails?.logoUrl);
-//   if (websiteDetails) {
-//     // Update the logoUrl with the new image filename
-//     websiteDetails.logoUrl = image;
-//   }
-//   await websiteDetails.save();
-//   const websiteInfo = customWebsiteDetails(websiteDetails);
-//   res.status(200).json({
-//     message: "Website image updated successfully",
-//     websiteInfo,
-//   });
-// });
-
-const fs = require("fs").promises;
-const path = require("path");
 
 const imageUpload = asyncWrapper(async (req, res) => {
   const image = req.file;

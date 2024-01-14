@@ -38,6 +38,7 @@ const getWebsiteInfo = asyncWrapper(async (req, res) => {
  */
 const updateWebsiteInfo = asyncWrapper(async (req, res) => {
   // Assuming req.body contains the updated website information
+  // using the schema to check the req.body values validation
   const updatedWebsiteInfo = req.body;
 
   // Find the existing website details in the database
@@ -63,7 +64,70 @@ const updateWebsiteInfo = asyncWrapper(async (req, res) => {
   });
 });
 
+/**
+ * update image
+ * /api/v1/website/upload
+ * private route (patch)
+ */
+// const imageUpload = asyncWrapper(async (req, res) => {
+//   const image = req.file.filename;
+
+//   // Find the existing website details in the database
+//   let websiteDetails = await WebsiteConfig.findOne();
+//   console.log(websiteDetails?.logoUrl);
+//   if (websiteDetails) {
+//     // Update the logoUrl with the new image filename
+//     websiteDetails.logoUrl = image;
+//   }
+//   await websiteDetails.save();
+//   const websiteInfo = customWebsiteDetails(websiteDetails);
+//   res.status(200).json({
+//     message: "Website image updated successfully",
+//     websiteInfo,
+//   });
+// });
+
+const fs = require("fs").promises;
+const path = require("path");
+
+const imageUpload = asyncWrapper(async (req, res) => {
+  const image = req.file;
+
+  // Check if a file is provided in the request
+  if (!image) {
+    throw createCustomError("No file provided", 400);
+  }
+
+  // Find the existing website details in the database
+  let websiteDetails = await WebsiteConfig.findOne();
+
+  if (websiteDetails.logoUrl) {
+    const existingLogoPath = path.join("public/Images", websiteDetails.logoUrl);
+
+    // Check if the existing logo file exists in the Images folder
+    try {
+      await fs.access(existingLogoPath);
+
+      // If the file exists, delete it
+      await fs.unlink(existingLogoPath);
+      console.log(`Deleted existing logo file`);
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+    }
+  }
+
+  // Update the logoUrl with the new image filename
+  websiteDetails.logoUrl = image.filename;
+  await websiteDetails.save();
+  const websiteInfo = customWebsiteDetails(websiteDetails);
+  res.status(200).json({
+    message: "Website image updated successfully",
+    websiteInfo,
+  });
+});
+
 module.exports = {
   getWebsiteInfo,
   updateWebsiteInfo,
+  imageUpload,
 };

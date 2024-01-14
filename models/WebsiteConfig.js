@@ -9,7 +9,7 @@ const websiteConfigSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    maxlength: [25, "Tittle can not be more than 25 characters"],
+    maxlength: [25, "Title can not be more than 25 characters"],
   },
   description: {
     type: String,
@@ -19,6 +19,13 @@ const websiteConfigSchema = new mongoose.Schema({
   logoUrl: {
     type: String,
     required: true,
+    validate: {
+      validator: function (value) {
+        const validExtensions = /\.(jpg|jpeg|png)$/i;
+        return validExtensions.test(value);
+      },
+      message: "Invalid file extension. Only jpg, jpeg, png are allowed.",
+    },
   },
   boardStatus: {
     type: String,

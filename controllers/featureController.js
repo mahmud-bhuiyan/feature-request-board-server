@@ -168,7 +168,7 @@ const likeFeatureRequestById = asyncWrapper(async (req, res) => {
 
   // Respond with the update message only
   res.json({
-    message: "Feature liked successfully",
+    message: "You liked the post!",
     feature: formattedFeature,
   });
 });
@@ -206,7 +206,7 @@ const unlikeFeatureRequestById = asyncWrapper(async (req, res) => {
 
   // Respond with the update message only
   res.json({
-    message: "Feature unliked successfully",
+    message: "You unliked the post!",
     feature: formattedFeature,
   });
 });
@@ -352,14 +352,6 @@ const deleteCommentById = asyncWrapper(async (req, res) => {
  */
 const searchFeatures = asyncWrapper(async (req, res) => {
   const searchTerm = req.params.searchTerm;
-
-  // Replace with your actual database query logic
-  // const results = await Feature.find({
-  //   $or: [
-  //     { title: { $regex: new RegExp(searchTerm, "i") } },
-  //     { description: { $regex: new RegExp(searchTerm, "i") } },
-  //   ],
-  // });
 
   const features = await Feature.find({
     $and: [

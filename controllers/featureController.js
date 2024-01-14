@@ -211,11 +211,6 @@ const unlikeFeatureRequestById = asyncWrapper(async (req, res) => {
   });
 });
 
-module.exports = {
-  likeFeatureRequestById,
-  unlikeFeatureRequestById,
-};
-
 /**
  * update feature requests status
  * /api/v1/features/:id
@@ -234,6 +229,35 @@ const updateRequestsStatusById = asyncWrapper(async (req, res) => {
 
   // // Save the updated feature to the database
   feature.status = status;
+  await feature.save();
+
+  // Format the feature details for the response
+  const formattedFeature = formatFeature(feature);
+
+  // Respond with the update message only
+  res.json({
+    message: "Feature status updated successfully",
+    feature: formattedFeature,
+  });
+});
+
+/**
+ * delete feature request
+ * /api/v1/features/:id
+ * private route (patch)
+ */
+const deleteRequestById = asyncWrapper(async (req, res) => {
+  const featureId = req.params.id;
+
+  // Check if the feature request exists
+  const feature = await Feature.findById(featureId);
+
+  if (!feature) {
+    throw createCustomError("Feature not found", 404);
+  }
+
+  // // Save the updated feature to the database
+  feature.isDeleted = true;
   await feature.save();
 
   // Format the feature details for the response
@@ -389,6 +413,7 @@ module.exports = {
   likeFeatureRequestById,
   unlikeFeatureRequestById,
   updateRequestsStatusById,
+  deleteRequestById,
   addFeatureRequestCommentsById,
   deleteCommentById,
   searchFeatures,

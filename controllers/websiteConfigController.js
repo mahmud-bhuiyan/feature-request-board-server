@@ -110,7 +110,7 @@ const imageUpload = asyncWrapper(async (req, res) => {
 
       // If the file exists, delete it
       await fs.unlink(existingLogoPath);
-      console.log(`Deleted existing logo file`);
+      // console.log(`Deleted existing logo file`);
     } catch (error) {
       console.error(`Error: ${error.message}`);
     }

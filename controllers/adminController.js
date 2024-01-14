@@ -58,7 +58,7 @@ const makeAdmin = asyncWrapper(async (req, res) => {
 });
 
 /**
- * delete user
+ * delete user (soft delete)
  * /api/v1/admins/:id
  * private route (patch)
  */

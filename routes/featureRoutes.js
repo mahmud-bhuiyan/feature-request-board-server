@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
+const checkAdmin = require("../middlewares/checkAdmin");
 
 const {
   createRequest,
@@ -12,13 +13,17 @@ const {
   deleteCommentById,
   updateRequestsStatusById,
   searchFeatures,
+  deleteRequestById,
 } = require("../controllers/featureController");
 
 // Create and get feature requests
 router.route("/").post(auth, createRequest).get(getAllRequest);
 
-// Get a specific feature request by ID
-router.route("/:id").get(getFeatureRequestById);
+// Get and delete feature request by ID
+router
+  .route("/:id")
+  .get(getFeatureRequestById)
+  .patch(auth, checkAdmin, deleteRequestById);
 
 // Update feature request status
 router.route("/:id/status").patch(auth, updateRequestsStatusById);

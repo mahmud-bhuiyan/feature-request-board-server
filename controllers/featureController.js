@@ -58,11 +58,10 @@ const createRequest = asyncWrapper(async (req, res) => {
 /**
  * all requests
  * /api/v1/features/
- * private route (get)
+ * public route (get)
  */
 const getAllRequest = asyncWrapper(async (req, res) => {
-  const features = await Feature.find({ isDeleted: false })
-    .sort({ _id: -1 })
+  let query = Feature.find({ isDeleted: false })
     .populate({
       path: "createdBy",
       match: { isDeleted: false },
@@ -72,6 +71,32 @@ const getAllRequest = asyncWrapper(async (req, res) => {
       path: "likes.users",
       select: "email",
     });
+
+  // Handle sorting
+  if (req.query.sortBy) {
+    const sortBy = req.query.sortBy;
+    const sortOrder = req.query.sortOrder === "desc" ? -1 : 1;
+
+    if (sortBy === "createdAt") {
+      query = query.sort({ createdAt: sortOrder });
+    } else if (sortBy === "likes") {
+      query = query.sort({ "likes.count": sortOrder });
+    } else if (sortBy === "comments") {
+      query = query.sort({ "comments.count": sortOrder });
+    } else if (sortBy === "title") {
+      // Case-sensitive sorting by title
+      // query = query.sort({ title: sortOrder });
+      // Case-insensitive sorting by title
+      query = query
+        .sort({ title: sortOrder })
+        .collation({ locale: "en", strength: 2 });
+    }
+  } else {
+    // Default sorting by _id in descending order if no sorting criteria provided
+    query = query.sort({ _id: -1 });
+  }
+
+  const features = await query.exec();
 
   // Filter out features created by soft deleted users
   const filteredFeatures = features.filter(

@@ -91,9 +91,6 @@ const getAllRequest = asyncWrapper(async (req, res) => {
         .sort({ title: sortOrder })
         .collation({ locale: "en", strength: 2 });
     }
-  } else {
-    // Default sorting by _id in descending order if no sorting criteria provided
-    query = query.sort({ _id: -1 });
   }
 
   const features = await query.exec();

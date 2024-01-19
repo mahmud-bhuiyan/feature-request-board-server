@@ -5,8 +5,6 @@ const {
   googleSignIn,
   loginUser,
   viewUserDetails,
-  updateUserDetails,
-  updateUserPassword,
 } = require("../controllers/userController");
 const auth = require("../middlewares/auth");
 
@@ -25,11 +23,5 @@ router.post("/login", loginUser);
 
 // View user details
 router.get("/me", auth, viewUserDetails);
-
-// Update user details
-router.patch("/update", auth, updateUserDetails);
-
-// Update user password
-router.patch("/updatePassword", auth, updateUserPassword);
 
 module.exports = router;

@@ -167,85 +167,9 @@ const viewUserDetails = asyncWrapper(async (req, res) => {
   res.status(200).json({ message: "User found", user: userDetails });
 });
 
-/**
- * updateUserDetails
- * /api/v1/users/update
- * private route
- */
-const updateUserDetails = asyncWrapper(async (req, res) => {
-  // Extract user ID from the request object
-  const userId = req.user._id;
-
-  // Extract name from the request body
-  const { name } = req.body;
-
-  // Find the user by ID
-  const user = await User.findById(userId);
-
-  // If no user is found
-  if (!user) {
-    throw createCustomError("User not found!", 404);
-  }
-
-  // Update user details
-  user.name = name || user.name;
-
-  // Save the updated user
-  await user.save();
-
-  // Updated user details
-  const userDetails = customUserDetails(user);
-
-  // Sending the response with updated user details
-  res
-    .status(200)
-    .json({ message: "Username updated successfully", user: userDetails });
-});
-
-/**
- * updateUserPassword
- * /api/v1/users/updatePassword
- * private route
- */
-const updateUserPassword = asyncWrapper(async (req, res) => {
-  // Extract user information from the request
-  const userId = req.user._id;
-  const { newPassword, confirmPassword } = req.body;
-
-  // Find the user by ID
-  const user = await User.findById(userId);
-
-  // Check if the user exists
-  if (!user) {
-    throw createCustomError("User not found!", 404);
-  }
-
-  // Check if the new password and confirm password match
-  if (newPassword !== confirmPassword) {
-    throw createCustomError(
-      "New password and confirm password do not match",
-      400
-    );
-  }
-
-  // Hash the new password
-  const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-  // Update the user's password with the hashed new password
-  user.password = hashedNewPassword;
-
-  // Save the updated user
-  await user.save();
-
-  // Respond with success message and user details
-  res.status(200).json({ message: "Password Updated Successfully" });
-});
-
 module.exports = {
   registerUser,
   googleSignIn,
   loginUser,
   viewUserDetails,
-  updateUserDetails,
-  updateUserPassword,
 };

@@ -118,6 +118,17 @@ const getAllRequest = asyncWrapper(async (req, res) => {
     totalComments: feature.comments.count,
   }));
 
+  // Calculate counts for each status
+  const statusCounts = await Feature.aggregate([
+    { $match: { isDeleted: false } },
+    { $group: { _id: "$status", count: { $sum: 1 } } },
+  ]);
+
+  const allItemsStatuses = statusCounts.reduce((acc, statusCount) => {
+    acc[statusCount._id] = statusCount.count;
+    return acc;
+  }, {});
+
   const totalPages = Math.ceil(totalItems / limit);
 
   // Check if there are more items beyond the current page
@@ -134,6 +145,7 @@ const getAllRequest = asyncWrapper(async (req, res) => {
       hasMoreNext,
       hasMorePrev,
     },
+    allItemsStatuses,
   });
 });
 

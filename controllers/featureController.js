@@ -63,17 +63,14 @@ const createRequest = asyncWrapper(async (req, res) => {
 const getAllRequest = asyncWrapper(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 5;
+  const statusFilter = req.query.status || "";
 
-  let query = Feature.find({ isDeleted: false })
-    .populate({
-      path: "createdBy",
-      match: { isDeleted: false },
-      select: "name email photoURL isDeleted",
-    })
-    .populate({
-      path: "likes.users",
-      select: "email",
-    });
+  let query = Feature.find({ isDeleted: false });
+
+  // Add status filter
+  if (statusFilter) {
+    query = query.where({ status: statusFilter });
+  }
 
   // Handle sorting
   if (req.query.sortBy) {
@@ -94,7 +91,10 @@ const getAllRequest = asyncWrapper(async (req, res) => {
   }
 
   // Count total items without pagination
-  const totalItems = await Feature.countDocuments({ isDeleted: false });
+  const totalItems = await Feature.countDocuments({
+    isDeleted: false,
+    ...(statusFilter && { status: statusFilter }),
+  });
 
   // Apply pagination
   query = query.skip((page - 1) * limit).limit(limit);
@@ -120,7 +120,12 @@ const getAllRequest = asyncWrapper(async (req, res) => {
 
   // Calculate counts for each status
   const statusCounts = await Feature.aggregate([
-    { $match: { isDeleted: false } },
+    {
+      $match: {
+        isDeleted: false,
+        ...(statusFilter && { status: statusFilter }),
+      },
+    },
     { $group: { _id: "$status", count: { $sum: 1 } } },
   ]);
 

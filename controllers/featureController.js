@@ -303,7 +303,7 @@ const updateRequestsStatusById = asyncWrapper(async (req, res) => {
 
   // Respond with the update message only
   res.json({
-    message: "Feature status updated successfully",
+    message: "Feature Request Updated Successfully",
     feature: formattedFeature,
   });
 });
@@ -332,7 +332,7 @@ const deleteRequestById = asyncWrapper(async (req, res) => {
 
   // Respond with the update message only
   res.json({
-    message: "Feature status updated successfully",
+    message: "Feature Request Deleted Successfully",
     feature: formattedFeature,
   });
 });

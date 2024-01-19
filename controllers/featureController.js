@@ -417,8 +417,11 @@ const deleteCommentById = asyncWrapper(async (req, res) => {
  */
 const searchFeatures = asyncWrapper(async (req, res) => {
   const searchTerm = req.params.searchTerm;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
 
-  const features = await Feature.find({
+  // Perform a single query to get both totalItems and paginated features
+  const result = await Feature.find({
     $and: [
       { isDeleted: false },
       {
@@ -430,6 +433,8 @@ const searchFeatures = asyncWrapper(async (req, res) => {
     ],
   })
     .sort({ _id: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
     .populate({
       path: "createdBy",
       select: "name email photoURL isDeleted",
@@ -439,11 +444,36 @@ const searchFeatures = asyncWrapper(async (req, res) => {
       select: "email",
     });
 
-  // Format the features for the response
-  const formattedFeatures = features.map(formatFeature);
+  // Extract features and totalItems from the result
+  const features = result.map(formatFeature);
 
+  const totalItems = await Feature.countDocuments({
+    $and: [
+      { isDeleted: false },
+      {
+        $or: [
+          { title: { $regex: new RegExp(searchTerm, "i") } },
+          { description: { $regex: new RegExp(searchTerm, "i") } },
+        ],
+      },
+    ],
+  });
+
+  // Calculate pagination information
+  const totalPages = Math.ceil(totalItems / limit);
+  const hasMoreNext = page < totalPages;
+  const hasMorePrev = page > 1;
+
+  // Send the response
   return res.status(200).json({
-    features: formattedFeatures,
+    features,
+    pageInfo: {
+      totalItems,
+      totalPages,
+      currentPage: page,
+      hasMoreNext,
+      hasMorePrev,
+    },
   });
 });
 

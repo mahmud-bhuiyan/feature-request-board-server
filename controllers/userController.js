@@ -119,24 +119,28 @@ const loginUser = asyncWrapper(async (req, res) => {
     throw createCustomError("User not found!", 404);
   }
 
-  // Compare the provided password with the hashed password stored in the database
-  const isMatch = await bcrypt.compare(password, user.password);
+  if (!user?.password) {
+    throw createCustomError("Please Login with Google", 401);
+  } else {
+    // Compare the provided password with the hashed password stored in the database
+    const isMatch = await bcrypt.compare(password, user.password);
 
-  // If passwords don't match
-  if (!isMatch) {
-    throw createCustomError("Invalid credentials", 401);
+    // If passwords don't match
+    if (!isMatch) {
+      throw createCustomError("Invalid credentials", 401);
+    }
+
+    // Generate a JSON Web Token (JWT) for authentication
+    const token = generateAuthToken(user._id);
+
+    // Get custom details about the user
+    const userDetails = customUserDetails(user);
+
+    // Send a successful response with the user details and token
+    res
+      .status(200)
+      .send({ message: "Logged in successfully", user: userDetails, token });
   }
-
-  // Generate a JSON Web Token (JWT) for authentication
-  const token = generateAuthToken(user._id);
-
-  // Get custom details about the user
-  const userDetails = customUserDetails(user);
-
-  // Send a successful response with the user details and token
-  res
-    .status(200)
-    .send({ message: "Logged in successfully", user: userDetails, token });
 });
 
 /**
@@ -172,8 +176,8 @@ const updateUserDetails = asyncWrapper(async (req, res) => {
   // Extract user ID from the request object
   const userId = req.user._id;
 
-  // Extract name and email from the request body
-  const { name, email } = req.body;
+  // Extract name from the request body
+  const { name } = req.body;
 
   // Find the user by ID
   const user = await User.findById(userId);
@@ -185,7 +189,6 @@ const updateUserDetails = asyncWrapper(async (req, res) => {
 
   // Update user details
   user.name = name || user.name;
-  user.email = email || user.email;
 
   // Save the updated user
   await user.save();
@@ -196,7 +199,7 @@ const updateUserDetails = asyncWrapper(async (req, res) => {
   // Sending the response with updated user details
   res
     .status(200)
-    .json({ message: "User updated successfully", user: userDetails });
+    .json({ message: "Username updated successfully", user: userDetails });
 });
 
 /**

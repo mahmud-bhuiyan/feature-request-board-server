@@ -61,6 +61,9 @@ const createRequest = asyncWrapper(async (req, res) => {
  * public route (get)
  */
 const getAllRequest = asyncWrapper(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+
   let query = Feature.find({ isDeleted: false })
     .populate({
       path: "createdBy",
@@ -84,14 +87,17 @@ const getAllRequest = asyncWrapper(async (req, res) => {
     } else if (sortBy === "comments") {
       query = query.sort({ "comments.count": sortOrder });
     } else if (sortBy === "title") {
-      // Case-sensitive sorting by title
-      // query = query.sort({ title: sortOrder });
-      // Case-insensitive sorting by title
       query = query
         .sort({ title: sortOrder })
         .collation({ locale: "en", strength: 2 });
     }
   }
+
+  // Count total items without pagination
+  const totalItems = await Feature.countDocuments({ isDeleted: false });
+
+  // Apply pagination
+  query = query.skip((page - 1) * limit).limit(limit);
 
   const features = await query.exec();
 
@@ -112,9 +118,22 @@ const getAllRequest = asyncWrapper(async (req, res) => {
     totalComments: feature.comments.count,
   }));
 
+  const totalPages = Math.ceil(totalItems / limit);
+
+  // Check if there are more items beyond the current page
+  const hasMoreNext = page < totalPages;
+  const hasMorePrev = page > 1;
+
   res.status(200).json({
     message: "All features retrieved successfully",
     features: simplifiedFeatures,
+    pageInfo: {
+      totalItems,
+      totalPages,
+      currentPage: page,
+      hasMoreNext,
+      hasMorePrev,
+    },
   });
 });
 

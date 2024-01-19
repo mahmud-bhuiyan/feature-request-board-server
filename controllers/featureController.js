@@ -65,7 +65,16 @@ const getAllRequest = asyncWrapper(async (req, res) => {
   const limit = parseInt(req.query.limit) || 5;
   const statusFilter = req.query.status || "";
 
-  let query = Feature.find({ isDeleted: false });
+  let query = Feature.find({ isDeleted: false })
+    .populate({
+      path: "createdBy",
+      match: { isDeleted: false },
+      select: "name email photoURL isDeleted",
+    })
+    .populate({
+      path: "likes.users",
+      select: "email",
+    });
 
   // Add status filter
   if (statusFilter) {

@@ -8,8 +8,18 @@ const { createCustomError } = require("../errors/customError");
  * private route (get)
  */
 const getAllUsers = asyncWrapper(async (req, res) => {
-  // Fetch all users from the database
-  const users = await User.find({ isDeleted: false }).sort({ _id: -1 });
+  // Pagination parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+
+  // Calculate the skip value based on the page and limit
+  const skip = (page - 1) * limit;
+
+  // Fetch users from the database with pagination
+  const users = await User.find({ isDeleted: false })
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit);
 
   // Map the features array to include only the desired fields
   const userDetails = users.map((user) => ({
@@ -21,9 +31,18 @@ const getAllUsers = asyncWrapper(async (req, res) => {
     isDeleted: user.isDeleted,
   }));
 
+  // Calculate total pages and total users
+  const totalUsersCount = await User.countDocuments({ isDeleted: false });
+  const totalPages = Math.ceil(totalUsersCount / limit);
+
   res.status(200).json({
     message: "Users fetched successfully",
     users: userDetails,
+    pageInfo: {
+      currentPage: page,
+      totalPages: totalPages,
+      totalUsers: totalUsersCount,
+    },
   });
 });
 

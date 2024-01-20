@@ -213,6 +213,14 @@ PATCH /api/v1/website
 PATCH /api/v1/website/upload
 ```
 
+## Admin API Documentation
+
+### Get all users
+
+```http
+GET /api/v1/admins/
+```
+
 ## Error Handling
 
 The API is designed to handle various error scenarios, including:

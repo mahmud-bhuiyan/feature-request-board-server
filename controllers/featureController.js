@@ -190,9 +190,6 @@ const getFeatureRequestById = asyncWrapper(async (req, res) => {
     throw createCustomError("Feature not found", 404);
   }
 
-  // Sort comments based on the createdAt field (newest first)
-  // feature.comments.data.sort((a, b) => b.createdAt - a.createdAt);
-
   // Format the feature details for the response
   const formattedFeature = formatFeature(feature);
 
@@ -457,6 +454,61 @@ const addFeatureRequestCommentsById = asyncWrapper(async (req, res) => {
 });
 
 /**
+ * update Comment By Id
+ * /api/v1/features/:id/comments
+ * private route (delete)
+ */
+const updateCommentById = asyncWrapper(async (req, res) => {
+  const featureId = req.params.featureId;
+  const commentId = req.params.commentId;
+  const userId = req.user.id;
+  const updatedCommentData = req.body.data;
+
+  // Find the feature by ID
+  const feature = await Feature.findById(featureId).populate({
+    path: "comments.data.commentsBy",
+    select: "_id name",
+  });
+
+  if (!feature) {
+    throw createCustomError("Feature not found", 404);
+  }
+
+  // Find the comment in the feature's comments array
+  const commentIndex = feature.comments.data.findIndex(
+    (comment) => comment._id.toString() === commentId
+  );
+
+  if (commentIndex === -1) {
+    throw createCustomError("Comment not found", 404);
+  }
+
+  // Remove the existing comment
+  feature.comments.data.splice(commentIndex, 1);
+
+  // Add the new comment
+  feature.comments.data.push({
+    commentsBy: userId,
+    comment: updatedCommentData, // assuming you want to use the updated comment data
+    createdAt: new Date(),
+  });
+
+  // Save the updated feature document
+  await feature.save();
+
+  // Format the feature details for the response
+  const formattedFeature = formatFeature(feature);
+
+  return res.status(200).json({
+    success: true,
+    message: "Comment updated successfully",
+    data: {
+      feature: formattedFeature,
+    },
+  });
+});
+
+/**
  * delete feature request comment
  * /api/v1/features/:id/comments
  * private route (delete)
@@ -487,9 +539,10 @@ const deleteCommentById = asyncWrapper(async (req, res) => {
 
   // Check if the user making the request is the one who posted the comment
   if (comment.commentsBy._id.toString() !== userId) {
-    return res
-      .status(403)
-      .json({ error: "Unauthorized. You cannot delete this comment." });
+    throw createCustomError(
+      "Unauthorized. You cannot delete this comment..",
+      403
+    );
   }
 
   // Remove the comment from the comments array
@@ -590,6 +643,7 @@ module.exports = {
   deleteRequestById,
   deleteFeatureRequestById,
   addFeatureRequestCommentsById,
+  updateCommentById,
   deleteCommentById,
   searchFeatures,
 };

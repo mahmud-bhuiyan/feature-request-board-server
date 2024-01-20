@@ -16,6 +16,7 @@ const {
   deleteRequestById,
   deleteFeatureRequestById,
   updateFeatureRequestById,
+  updateCommentById,
 } = require("../controllers/featureController");
 
 // Create and get feature requests
@@ -45,6 +46,9 @@ router.route("/:id/comments").patch(auth, addFeatureRequestCommentsById);
 
 // Delete a comment by ID
 router.route("/:featureId/comments/:commentId").delete(auth, deleteCommentById);
+
+// Delete a comment by ID
+router.route("/:featureId/comments/:commentId").patch(auth, updateCommentById);
 
 // Search feature requests
 router.route("/search/:searchTerm").get(searchFeatures);

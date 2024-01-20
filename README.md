@@ -65,6 +65,90 @@ Follow these steps to set up and run the project:
 GET /health
 ```
 
+## Feature API Documentation
+
+### Create Feature Requests
+
+- Only authenticated users can create a new request
+
+```http
+POST /api/v1/features
+```
+
+### Get All Feature Requests
+
+- This query runs with optional sorting and filtering options.
+
+```http
+GET /api/v1/features
+```
+
+### Get Feature Request By ID
+
+```http
+GET /api/v1/features/:id
+```
+
+### Update Feature Request By ID
+
+```http
+PATCH /api/v1/features/:id/update
+```
+
+### Delete Feature Request By ID
+
+```http
+DELETE /api/v1/features/:id
+```
+
+### Soft Delete Feature Request By ID
+
+```http
+PATCH /api/v1/features/:id
+```
+
+### Update Feature Request Status By ID
+
+```http
+PATCH /api/v1/features/:id/status
+```
+
+### Like Feature Request
+
+```http
+PATCH /api/v1/features/:id/like
+```
+
+### Unlike Feature Request
+
+```http
+PATCH /api/v1/features/:id/unlike
+```
+
+### Add Comments Feature Request
+
+```http
+PATCH /api/v1/features/:id/comments
+```
+
+### Delete Comments from Feature Request
+
+```http
+DELETE /api/v1/features/:featureId/comments/:commentId
+```
+
+### Update Comments from Feature Request
+
+```http
+PATCH /api/v1/features/:featureId/comments/:commentId
+```
+
+### Search Feature Request
+- It can search based on both title and description
+```http
+GET /api/v1/features/search/:searchTerm
+```
+
 ## Error Handling
 
 The API is designed to handle various error scenarios, including:

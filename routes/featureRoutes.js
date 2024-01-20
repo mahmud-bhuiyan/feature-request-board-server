@@ -47,7 +47,7 @@ router.route("/:id/comments").patch(auth, addFeatureRequestCommentsById);
 // Delete a comment by ID
 router.route("/:featureId/comments/:commentId").delete(auth, deleteCommentById);
 
-// Delete a comment by ID
+// Update a comment by ID
 router.route("/:featureId/comments/:commentId").patch(auth, updateCommentById);
 
 // Search feature requests

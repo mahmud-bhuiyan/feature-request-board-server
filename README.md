@@ -57,10 +57,6 @@ Follow these steps to set up and run the project:
 
    Access the application in a web browser at `http://localhost:3001`.
 
-## Authentication
-
-To access certain features of the API, you'll need to authenticate using a token. Follow the authentication process to obtain a token and include it in the headers for secure interactions.
-
 ## Endpoints
 
 ### **Check Health**

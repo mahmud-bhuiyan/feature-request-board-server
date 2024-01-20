@@ -309,7 +309,7 @@ const updateRequestsStatusById = asyncWrapper(async (req, res) => {
 });
 
 /**
- * delete feature request
+ * (soft) delete feature request (for admin)
  * /api/v1/features/:id
  * private route (patch)
  */
@@ -334,6 +334,39 @@ const deleteRequestById = asyncWrapper(async (req, res) => {
   res.json({
     message: "Feature Request Deleted Successfully",
     feature: formattedFeature,
+  });
+});
+
+/**
+ * delete feature request
+ * /api/v1/features/:id
+ * private route (patch)
+ */
+const deleteFeatureRequestById = asyncWrapper(async (req, res) => {
+  const featureId = req.params.id;
+
+  // Check if the feature request exists
+  const feature = await Feature.findById(featureId);
+
+  if (!feature) {
+    throw createCustomError("Feature not found", 404);
+  }
+
+  // Check if the authenticated user is the creator of the feature request
+  if (req.user && feature.createdBy.toString() !== req.user.id) {
+    throw createCustomError(
+      "Unauthorized: You are not the creator of this feature request",
+      403
+    );
+  }
+
+  // Delete the feature from the database
+  await Feature.findByIdAndDelete(featureId);
+
+  // Respond with the delete message
+  res.json({
+    success: true,
+    message: "Feature Request Deleted Successfully",
   });
 });
 
@@ -511,6 +544,7 @@ module.exports = {
   unlikeFeatureRequestById,
   updateRequestsStatusById,
   deleteRequestById,
+  deleteFeatureRequestById,
   addFeatureRequestCommentsById,
   deleteCommentById,
   searchFeatures,

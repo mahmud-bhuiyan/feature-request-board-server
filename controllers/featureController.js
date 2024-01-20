@@ -279,6 +279,49 @@ const unlikeFeatureRequestById = asyncWrapper(async (req, res) => {
 });
 
 /**
+ * update feature requests
+ * /api/v1/features/:id/update
+ * private route (patch)
+ */
+const updateFeatureRequestById = asyncWrapper(async (req, res) => {
+  const featureId = req.params.id;
+
+  const { title, description } = req.body.data;
+
+  // Check if the feature request exists
+  const feature = await Feature.findById(featureId);
+
+  if (!feature) {
+    throw createCustomError("Feature not found", 404);
+  }
+
+  // Check if the authenticated user is the creator of the feature request
+  if (req.user && feature.createdBy.toString() !== req.user.id) {
+    throw createCustomError(
+      "Unauthorized: You are not the creator of this feature request",
+      403
+    );
+  }
+
+  // Update the feature details
+  feature.title = title;
+  feature.description = description;
+
+  // Save the updated feature to the database
+  await feature.save();
+
+  // Format the feature details for the response
+  const formattedFeature = formatFeature(feature);
+
+  // Respond with the update message and formatted feature
+  res.json({
+    success: true,
+    message: "Feature Request Updated Successfully",
+    feature: formattedFeature,
+  });
+});
+
+/**
  * update feature requests status
  * /api/v1/features/:id
  * private route (patch)
@@ -542,6 +585,7 @@ module.exports = {
   getFeatureRequestById,
   likeFeatureRequestById,
   unlikeFeatureRequestById,
+  updateFeatureRequestById,
   updateRequestsStatusById,
   deleteRequestById,
   deleteFeatureRequestById,

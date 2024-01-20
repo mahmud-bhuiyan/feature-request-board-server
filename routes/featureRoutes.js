@@ -15,6 +15,7 @@ const {
   searchFeatures,
   deleteRequestById,
   deleteFeatureRequestById,
+  updateFeatureRequestById,
 } = require("../controllers/featureController");
 
 // Create and get feature requests
@@ -26,6 +27,9 @@ router
   .get(getFeatureRequestById)
   .patch(auth, checkAdmin, deleteRequestById)
   .delete(auth, deleteFeatureRequestById);
+
+// Update feature request status
+router.route("/:id/update").patch(auth, updateFeatureRequestById);
 
 // Update feature request status
 router.route("/:id/status").patch(auth, updateRequestsStatusById);

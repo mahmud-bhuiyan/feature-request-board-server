@@ -107,7 +107,7 @@ DELETE /api/v1/features/:id
 PATCH /api/v1/features/:id
 ```
 
-### Update Feature Request Status By ID
+### Update Feature Request Status By ID (Admin Protected Route)
 
 ```http
 PATCH /api/v1/features/:id/status
@@ -144,9 +144,33 @@ PATCH /api/v1/features/:featureId/comments/:commentId
 ```
 
 ### Search Feature Request
+
 - It can search based on both title and description
+
 ```http
 GET /api/v1/features/search/:searchTerm
+```
+
+## Website API Documentation
+
+### Get Website Information
+
+```http
+GET /api/v1/website
+```
+
+### Update Website Information (Admin Protected Route)
+
+- Only admin can do this
+
+```http
+PATCH /api/v1/website
+```
+
+### Update Website Image (Admin Protected Route)
+
+```http
+PATCH /api/v1/website/upload
 ```
 
 ## Error Handling

@@ -6,10 +6,16 @@ Welcome to the Feature Request Board API documentation. This API is implemented 
 
 This Feature Request Board API is designed to help you efficiently organize and track feature requests. It leverages Node.js for server-side logic, Express.js for routing, and MongoDB for data storage.
 
+## Accessing the Feature Request Board
+
+To access the Feature Request Board, visit [Feature Request Board Live Link](https://mahmud-feature-request-board.vercel.app).
+
+visit [Frontend git link](https://github.com/mahmud-bhuiyan/SJI-feature-request-board.git).
+
 ## Prerequisites
 
 - Node.js and npm installed on your machine
-- MongoDB installed locally or accessible remotely
+- MongoDB(Mongoose) installed
 
 ## Installation And Usage
 
@@ -51,22 +57,6 @@ Follow these steps to set up and run the project:
 
    Access the application in a web browser at `http://localhost:3001`.
 
-## Database Model
-
-### User Model
-
-- **name**: users name
-- **email**: users email address
-- **password**: users password (password will be hashed)
-
-### Task Model
-
-- **title**: Title of the task
-- **description**: Description of the task
-- **status**: Current status of the task (Pending, In Progress, Completed)
-- **dueDate**: Due date of the task
-- **owner**: ID of the user who created the task
-
 ## Authentication
 
 To access certain features of the API, you'll need to authenticate using a token. Follow the authentication process to obtain a token and include it in the headers for secure interactions.
@@ -77,202 +67,6 @@ To access certain features of the API, you'll need to authenticate using a token
 
 ```http
 GET /health
-```
-
-### User registration
-
-```http
-POST /api/v1/auth/register
-```
-
-#### Demo Request
-
-```json
-{
-  "name": "Mahmud",
-  "email": "mahmud@gmail.com",
-  "password": "Demopassword123"
-}
-```
-
-### User login
-
-```http
-POST /api/v1/auth/login
-```
-
-#### Demo Request
-
-```json
-{
-  "email": "mahmud@gmail.com",
-  "password": "Demopassword123"
-}
-```
-
-### Making Authenticated GET, POST, PATCH, DELETE Requests
-
-For GET, POST, PATCH, DELETE requests that require authentication, you need to include the user's token obtained during the login process. Follow these steps to use the token in your request:
-
-1. **Token Acquisition:**
-
-   - First, ensure that the user is authenticated and has obtained a valid token during the login process.
-
-2. **Include Token in Headers:**
-
-   - In your GET, POST, PATCH, DELETE request, include the token in the headers.
-     - **Key:** `Authorization`
-     - **Value:** `Bearer YOUR_TOKEN`
-
-   Replace `YOUR_TOKEN` with the actual token obtained during the user login.
-
-**Example:**
-
-```http
-POST /api/v1/features
-```
-
-**Headers:**
-
-```
-Content-Type: application/json
-Authorization: Bearer demo_token_from_user_login
-```
-
-### Create a feature request
-
-```http
-POST /api/v1/features
-```
-
-#### Demo Request
-
-```json
-{
-  "title": "Demo 1",
-  "description": "Description for Demo 1",
-  "status": "Pending",
-}
-```
-
-### Fetch all feature requests
-
-```http
-GET /api/v1/features
-```
-
-#### Demo Response
-
-```json
-{
-  "tasks": [
-    {
-      "_id": "6564e7b9d4059018a846b1d4",
-      "title": "Task 1",
-      "description": "Description of Task 1",
-      "status": "Completed",
-      "owner": "6564d4aead2453846a5d42e4",
-      "dueDate": "2023-12-04T17:42:59.035Z",
-      "createdAt": "2023-11-27T17:42:59.035Z",
-      "updatedAt": "2023-11-27T17:44:25.242Z",
-      "__v": 0
-    },
-    {
-      "_id": "6564e7d6d4059018a846b1d7",
-      "title": "Task 2",
-      "description": "Description of Task 2",
-      "status": "in-progress",
-      "owner": "6564d4aead2453846a5d42e4",
-      "dueDate": "2023-12-04T17:42:59.035Z",
-      "createdAt": "2023-11-27T17:42:59.035Z",
-      "updatedAt": "2023-11-27T17:44:25.242Z",
-      "__v": 0
-    }
-  ],
-  "count": 2,
-  "message": "Tasks fetched successfully"
-}
-```
-
-### Fetch a single task by id
-
-```http
-GET /api/v1/tasks/:id
-```
-
-#### Demo Response
-
-```json
-{
-  "task": {
-    "_id": "6564e7b9d4059018a846b1d4",
-    "title": "Task 1",
-    "description": "Description of Task 1",
-    "status": "Completed",
-    "owner": "6564d4aead2453846a5d42e4",
-    "dueDate": "2023-12-04T17:42:59.035Z",
-    "createdAt": "2023-11-27T17:42:59.035Z",
-    "updatedAt": "2023-11-27T17:44:25.242Z",
-    "__v": 0
-  },
-  "message": "Task fetched successfully"
-}
-```
-
-### Update a task by id
-
-```http
-PATCH /api/v1/tasks/:id
-```
-
-#### Demo Request
-
-```json
-{
-  "title": "Task 1 updated",
-  "description": "Description of Task 1 updated.",
-  "status": "Completed",
-  "dueDate": "2023-11-28"
-}
-```
-
-#### Demo Response
-
-```json
-{
-  "task": {
-    "_id": "6564e7b9d4059018a846b1d4",
-    "title": "Task 1 updated",
-    "description": "Description of Task 1 updated",
-    "status": "Completed",
-    "owner": "6564d4aead2453846a5d42e4",
-    "dueDate": "2023-11-28T00:00:00.000Z",
-    "createdAt": "2023-11-27T17:42:59.035Z",
-    "updatedAt": "2023-11-27T17:44:25.242Z",
-    "__v": 0
-  },
-  "message": "Task updated successfully"
-}
-```
-
-### Delete a task by id
-
-```http
-DELETE /api/v1/tasks/:id
-```
-
-#### Demo Response
-
-```json
-{
-  "task": {
-    "title": "task 4",
-    "status": "Completed",
-    "description": "Description of Task 4",
-    "dueDate": "2023-11-28T00:00:00.000Z"
-  },
-  "message": "task 4 - task deleted successfully"
-}
 ```
 
 ## Error Handling
@@ -303,8 +97,10 @@ The API is designed to handle various error scenarios, including:
 project-root/
 │
 ├── controllers/
+│ ├── adminController.js
 │ ├── featureController.js
 │ ├── userController.js
+│ ├── websiteConfigController.js
 │
 ├── db/
 │ ├── connect.js
@@ -315,12 +111,14 @@ project-root/
 ├── middleware/
 │ ├── asyncWrapper.js
 │ ├── auth.js
+│ ├── checkAdmin.js
 │ ├── customErrorHandler.js
 │ ├── notFound.js
 │
 ├── models/
 │ ├── Feature.js
 │ ├── User.js
+│ ├── WebsiteConfig.js
 │
 ├── public/
 │ ├── favicon.png
@@ -328,8 +126,10 @@ project-root/
 │ ├── main.css
 │
 ├── routes/
+│ ├── adminRoutes.js
 │ ├── featureRoutes.js
 │ ├── userRoutes.js
+│ ├── websiteRoutes.js
 │
 ├── .env
 ├── .gitignore

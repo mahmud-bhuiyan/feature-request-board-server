@@ -173,6 +173,46 @@ PATCH /api/v1/website
 PATCH /api/v1/website/upload
 ```
 
+## User API Documentation
+
+### Get user Information
+
+```http
+GET /api/v1/users/me
+```
+
+### Login user
+
+```http
+POST /api/v1/users/login
+```
+
+### Register user
+
+```http
+POST /api/v1/users/register
+```
+
+### Google signin user
+
+```http
+POST /api/v1/users/google-signin
+```
+
+### Update Website Information (Admin Protected Route)
+
+- Only admin can do this
+
+```http
+PATCH /api/v1/website
+```
+
+### Update Website Image (Admin Protected Route)
+
+```http
+PATCH /api/v1/website/upload
+```
+
 ## Error Handling
 
 The API is designed to handle various error scenarios, including:

@@ -283,13 +283,6 @@ The base URL for accessing the App Information API is `/api/v1/website`.
 
 The User API manages user-related operations, allowing users to be created, retrieved, updated, and deleted.
 
-### Get all users details
-
-- URL: `/api/v1/admins/`
-- Method: `GET`
-- Description: Retrieves all users.
-  - Response: Returns a JSON object containing an array of users.
-
 ## Base URL
 
 The base URL for accessing the User API is `/api/v1/users`.
@@ -326,6 +319,41 @@ The base URL for accessing the User API is `/api/v1/users`.
 - Description: Creates a new user using firebase.
   - Request Body: JSON object representing the new user.
   - Response: Returns a success message upon successful user creation.
+
+## Admin API Documentation
+
+The Admin API manages admin-related operations, allowing users to be updated as admin, retrieved and soft delete user.
+
+## Base URL
+
+The base URL for accessing the User API is `/api/v1/admins`.
+
+## Endpoints
+
+### Get all users details
+
+- URL: `/`
+- Method: `GET`
+- Description: Retrieves all users and admins.
+  - Response: Returns a JSON object containing an array of users.
+
+### Soft Delete User By ID
+
+- URL: `/:id`
+- Method: `PATCH`
+- Description: Soft Delete a user by its ID from admin panel.
+  - Params:
+    - `id`: User ID
+  - Response: Returns a JSON object containing the soft deleted users details.
+
+### Make User an Admin By ID
+
+- URL: `/make-admin/:id`
+- Method: `PATCH`
+- Description: make an user an admin using ID.
+  - Params:
+    - `id`: User ID
+  - Response: Returns a JSON object containing the updated users details.
 
 ## Error Handling
 
